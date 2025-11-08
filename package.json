@@ -1,0 +1,14 @@
+{
+  "name": "sprint-planning-tool",
+  "version": "1.0.0",
+  "description": "Full-stack Sprint Planning Tool",
+  "scripts": {
+    "install:all": "cd backend && npm install && cd ../frontend && npm install",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev": "echo 'Please run backend and frontend in separate terminals:' && echo '  Terminal 1: npm run dev:backend' && echo '  Terminal 2: npm run dev:frontend'"
+  },
+  "keywords": ["sprint", "planning", "capacity", "team"],
+  "author": "",
+  "license": "MIT"
+}

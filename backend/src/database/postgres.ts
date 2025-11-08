@@ -1,0 +1,54 @@
+import { Pool } from 'pg';
+import { dbConfig } from './config';
+
+if (!dbConfig.url) {
+  throw new Error('DATABASE_URL environment variable is required for PostgreSQL');
+}
+
+export const pool = new Pool({
+  connectionString: dbConfig.url,
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : undefined,
+});
+
+// Initialize database tables
+export const initPostgres = async () => {
+  const client = await pool.connect();
+  try {
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS team_members (
+        id SERIAL PRIMARY KEY,
+        name TEXT NOT NULL,
+        role TEXT NOT NULL,
+        default_capacity INTEGER NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+
+      CREATE TABLE IF NOT EXISTS sprints (
+        id SERIAL PRIMARY KEY,
+        name TEXT NOT NULL,
+        start_date TEXT NOT NULL,
+        end_date TEXT NOT NULL,
+        is_current BOOLEAN DEFAULT FALSE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+
+      CREATE TABLE IF NOT EXISTS holidays (
+        id SERIAL PRIMARY KEY,
+        sprint_id INTEGER NOT NULL,
+        member_id INTEGER NOT NULL,
+        date TEXT NOT NULL,
+        FOREIGN KEY (sprint_id) REFERENCES sprints(id) ON DELETE CASCADE,
+        FOREIGN KEY (member_id) REFERENCES team_members(id) ON DELETE CASCADE,
+        UNIQUE(sprint_id, member_id, date)
+      );
+    `);
+    console.log('✅ PostgreSQL tables initialized');
+  } catch (error) {
+    console.error('Failed to initialize PostgreSQL tables:', error);
+    throw error;
+  } finally {
+    client.release();
+  }
+};
+
+export default pool;
