@@ -278,18 +278,45 @@ The built files will be in `frontend/dist/`. Serve them with any static file ser
 
 ## Deploying to Production
 
-The app is ready to deploy to cloud platforms like Render, Heroku, or Railway.
+The app is ready to deploy to various platforms:
 
-**📘 See [RENDER_DEPLOYMENT.md](./RENDER_DEPLOYMENT.md) for detailed deployment instructions**
+### Option 1: Kubernetes (Linode LKE, AWS EKS, GKE, etc.)
+
+**🚀 Quick Start: [QUICKSTART.md](./QUICKSTART.md)** - Deploy in 5 simple steps!
+
+**📘 Complete Guide: [KUBERNETES_DEPLOYMENT.md](./KUBERNETES_DEPLOYMENT.md)** - Full documentation
+
+Quick commands:
+```bash
+# 1. Build and push Docker images
+./build-and-push.sh all
+
+# 2. Deploy to Kubernetes
+cd k8s
+./deploy.sh deploy
+
+# 3. Check status
+./deploy.sh status
+```
+
+Features:
+- ✅ High availability with multiple replicas
+- ✅ Auto-healing and auto-scaling
+- ✅ Managed PostgreSQL in cluster
+- ✅ HTTPS with cert-manager
+- ✅ Production-grade infrastructure
+
+### Option 2: Render (Simple Cloud Platform)
+
+**📘 See [RENDER_DEPLOYMENT.md](./RENDER_DEPLOYMENT.md) for Render deployment instructions**
 
 Quick summary:
-1. **Create a PostgreSQL database** on your platform
+1. **Create a PostgreSQL database** on Render
 2. **Deploy backend** with environment variables:
    - `DATABASE_TYPE=postgres`
    - `DATABASE_URL=<your-postgres-url>`
    - `NODE_ENV=production`
 3. **Deploy frontend** as a static site
-4. **Configure CORS** to allow your frontend domain
 
 The app automatically switches from SQLite (local) to PostgreSQL (production) based on environment variables.
 

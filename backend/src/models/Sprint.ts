@@ -19,18 +19,18 @@ export class SprintModel {
   }
 
   static async getCurrent(): Promise<Sprint | undefined> {
-    return queryOne<Sprint>('SELECT * FROM sprints WHERE is_current = 1 LIMIT 1');
+    return queryOne<Sprint>('SELECT * FROM sprints WHERE is_current = TRUE LIMIT 1');
   }
 
   static async create(sprint: Omit<Sprint, 'id' | 'created_at'>): Promise<Sprint> {
     // If this sprint is marked as current, unmark all others
     if (sprint.is_current) {
-      await queryRun('UPDATE sprints SET is_current = 0');
+      await queryRun('UPDATE sprints SET is_current = FALSE');
     }
 
     const result = await queryInsert<Sprint>(
       'INSERT INTO sprints (name, start_date, end_date, is_current) VALUES (?, ?, ?, ?)',
-      [sprint.name, sprint.start_date, sprint.end_date, sprint.is_current ? 1 : 0]
+      [sprint.name, sprint.start_date, sprint.end_date, sprint.is_current]
     );
     return { ...sprint, ...result };
   }
@@ -38,7 +38,7 @@ export class SprintModel {
   static async update(id: number, sprint: Partial<Omit<Sprint, 'id' | 'created_at'>>): Promise<boolean> {
     // If setting as current, unmark all others first
     if (sprint.is_current) {
-      await queryRun('UPDATE sprints SET is_current = 0');
+      await queryRun('UPDATE sprints SET is_current = FALSE');
     }
 
     const fields: string[] = [];
@@ -58,7 +58,7 @@ export class SprintModel {
     }
     if (sprint.is_current !== undefined) {
       fields.push('is_current = ?');
-      values.push(sprint.is_current ? 1 : 0);
+      values.push(sprint.is_current);
     }
 
     if (fields.length === 0) return false;

@@ -1,13 +1,22 @@
 import Database from 'better-sqlite3';
 import path from 'path';
+import { isSQLite } from './config';
 
-const db = new Database(path.join(__dirname, '../../sprint-planning.db'));
+// Only initialize database if SQLite is configured
+const db = isSQLite() ? new Database(path.join(__dirname, '../../sprint-planning.db')) : null;
 
 // Enable foreign keys
-db.pragma('foreign_keys = ON');
+if (db) {
+  db.pragma('foreign_keys = ON');
+}
 
 // Create tables
 export const initSQLite = () => {
+  if (!db) {
+    console.log('⚠️  SQLite not configured, skipping initialization');
+    return;
+  }
+
   db.exec(`
     CREATE TABLE IF NOT EXISTS team_members (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -39,6 +48,9 @@ export const initSQLite = () => {
   console.log('✅ SQLite tables initialized');
 };
 
-initSQLite();
+// Only initialize if SQLite is configured
+if (isSQLite()) {
+  initSQLite();
+}
 
 export default db;

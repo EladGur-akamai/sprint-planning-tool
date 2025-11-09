@@ -1,6 +1,6 @@
 import { TeamMember, Sprint, Holiday, SprintCapacity } from '../types';
 
-const API_BASE = '/api';
+const API_BASE = 'http://66.228.63.81:3001/api';
 
 // Team Members
 export const teamMemberApi = {

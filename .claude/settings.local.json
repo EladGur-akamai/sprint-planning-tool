@@ -4,7 +4,21 @@
       "Bash(mkdir:*)",
       "Bash(npm install)",
       "Bash(npm run dev:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(chmod:*)",
+      "Bash(./build-and-push.sh all)",
+      "Bash(docker build:*)",
+      "Bash(kubectl get pods:*)",
+      "Bash(kubectl describe:*)",
+      "Bash(kubectl get:*)",
+      "Bash(docker buildx version:*)",
+      "Bash(docker buildx create:*)",
+      "Bash(kubectl rollout:*)",
+      "Bash(kubectl logs:*)",
+      "Bash(kubectl delete:*)",
+      "Bash(npx tsc)",
+      "Bash(kubectl apply:*)",
+      "Bash(./build-and-push.sh:*)"
     ],
     "deny": [],
     "ask": []
