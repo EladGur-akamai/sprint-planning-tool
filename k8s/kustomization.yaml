@@ -1,0 +1,11 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: sprint-planning
+
+resources:
+  - namespace.yaml
+  # - postgres.yaml  # Using external Akamai managed PostgreSQL
+  - backend.yaml
+  - frontend.yaml
+  - ingress.yaml
