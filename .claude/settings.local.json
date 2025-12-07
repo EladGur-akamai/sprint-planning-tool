@@ -18,7 +18,14 @@
       "Bash(kubectl delete:*)",
       "Bash(npx tsc)",
       "Bash(kubectl apply:*)",
-      "Bash(./build-and-push.sh:*)"
+      "Bash(./build-and-push.sh:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npm run build:*)",
+      "Bash(docker tag:*)",
+      "Bash(docker push:*)",
+      "Bash(docker buildx use:*)",
+      "Bash(docker buildx build:*)",
+      "Bash(git add:*)"
     ],
     "deny": [],
     "ask": []

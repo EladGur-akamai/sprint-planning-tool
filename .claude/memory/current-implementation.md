@@ -4,7 +4,7 @@
 
 ## Project Overview
 
-Sprint Planning Tool is a full-stack web application for managing sprint planning, team capacity, and holiday tracking. Built for Israeli work weeks (Sunday-Thursday).
+mTeam Extreme is a full-stack web application for managing sprint planning, team capacity, and holiday tracking. Built for Israeli work weeks (Sunday-Thursday).
 
 ## Technology Stack
 
@@ -78,6 +78,7 @@ frontend/src/
 ├── components/              # React components
 │   ├── TeamManagement.tsx
 │   ├── SprintManagement.tsx
+│   ├── SprintSelector.tsx   # Sprint dropdown selector (NEW)
 │   ├── SprintCalendar.tsx
 │   ├── CapacitySummary.tsx
 │   └── SprintHistory.tsx
@@ -107,13 +108,17 @@ frontend/src/
 - Delete sprints functionality
 
 ### 3. Sprint Calendar
+- **Sprint selector dropdown** - View and edit any sprint (past, current, or future)
+- Default selection shows current active sprint
 - Interactive Sun-Thu calendar grid (Israeli work week)
 - 2-week sprint visualization
 - Holiday toggle per team member per day
 - Color-coded indicators:
   - Green (✓) = Working day
   - Red (✗) = Holiday
+  - Blue = Today
 - Automatic weekend exclusion (Friday-Saturday)
+- "CURRENT SPRINT" badge on active sprint
 
 ### 4. Capacity Calculation
 - Formula: `(Default Capacity × Available Days) ÷ 10`
@@ -129,13 +134,13 @@ frontend/src/
 ### 6. UI/UX
 - Responsive TailwindCSS design
 - Tab-based navigation:
-  - Dashboard
+  - Dashboard (with sprint selector)
   - Team Management
   - Sprint Management
-  - Sprint History
 - Loading states
 - Error handling
 - Health check endpoint (`/api/health`)
+- Brand: "Team Extreme"
 
 ## API Endpoints
 
