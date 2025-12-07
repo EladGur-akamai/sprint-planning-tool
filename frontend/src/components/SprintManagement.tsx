@@ -45,6 +45,7 @@ function SprintManagement({ onUpdate }: Props) {
         start_date: format(startDate, 'yyyy-MM-dd'),
         end_date: format(endDate, 'yyyy-MM-dd'),
         is_current: formData.is_current,
+        load_factor: 0.8,
       });
 
       await loadSprints();

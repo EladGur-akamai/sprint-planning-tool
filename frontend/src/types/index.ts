@@ -12,6 +12,7 @@ export interface Sprint {
   start_date: string;
   end_date: string;
   is_current: boolean;
+  load_factor: number;
   created_at?: string;
 }
 
@@ -36,6 +37,7 @@ export interface SprintCapacity {
   sprint_id: number;
   sprint_name: string;
   total_working_days: number;
+  load_factor: number;
   member_capacities: MemberCapacity[];
   total_capacity: number;
 }

@@ -6,6 +6,7 @@ export interface Sprint {
   start_date: string;
   end_date: string;
   is_current: boolean;
+  load_factor: number;
   created_at?: string;
 }
 
@@ -28,9 +29,11 @@ export class SprintModel {
       await queryRun('UPDATE sprints SET is_current = FALSE');
     }
 
+    const load_factor = sprint.load_factor !== undefined ? sprint.load_factor : 0.8;
+
     const result = await queryInsert<Sprint>(
-      'INSERT INTO sprints (name, start_date, end_date, is_current) VALUES (?, ?, ?, ?)',
-      [sprint.name, sprint.start_date, sprint.end_date, sprint.is_current]
+      'INSERT INTO sprints (name, start_date, end_date, is_current, load_factor) VALUES (?, ?, ?, ?, ?)',
+      [sprint.name, sprint.start_date, sprint.end_date, sprint.is_current, load_factor]
     );
     return { ...sprint, ...result };
   }
@@ -59,6 +62,10 @@ export class SprintModel {
     if (sprint.is_current !== undefined) {
       fields.push('is_current = ?');
       values.push(sprint.is_current);
+    }
+    if (sprint.load_factor !== undefined) {
+      fields.push('load_factor = ?');
+      values.push(sprint.load_factor);
     }
 
     if (fields.length === 0) return false;

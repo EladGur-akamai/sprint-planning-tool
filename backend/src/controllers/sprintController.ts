@@ -46,7 +46,7 @@ export const getCurrentSprint = async (req: Request, res: Response) => {
 
 export const createSprint = async (req: Request, res: Response) => {
   try {
-    const { name, start_date, end_date, is_current } = req.body;
+    const { name, start_date, end_date, is_current, load_factor } = req.body;
 
     if (!name || !start_date || !end_date) {
       return res.status(400).json({ error: 'Missing required fields' });
@@ -57,6 +57,7 @@ export const createSprint = async (req: Request, res: Response) => {
       start_date,
       end_date,
       is_current: is_current || false,
+      load_factor: load_factor !== undefined ? load_factor : 0.8,
     });
     res.status(201).json(sprint);
   } catch (error) {
@@ -115,12 +116,14 @@ export const getSprintCapacity = async (req: Request, res: Response) => {
     const workingDays = days.filter(day => !isIsraeliWeekend(day));
     const totalWorkingDays = workingDays.length;
 
-    // Calculate capacity for each member
+    // Calculate capacity for each member with load factor
+    const loadFactor = sprint.load_factor || 0.8;
+
     const memberCapacities = members.map(member => {
       const memberHolidays = holidays.filter(h => h.member_id === member.id);
       const holidayCount = memberHolidays.length;
       const availableDays = totalWorkingDays - holidayCount;
-      const capacity = (member.default_capacity * availableDays) / 10;
+      const capacity = (member.default_capacity * availableDays * loadFactor) / 10;
 
       return {
         member_id: member.id,
@@ -139,6 +142,7 @@ export const getSprintCapacity = async (req: Request, res: Response) => {
       sprint_id: id,
       sprint_name: sprint.name,
       total_working_days: totalWorkingDays,
+      load_factor: loadFactor,
       member_capacities: memberCapacities,
       total_capacity: Math.round(totalCapacity * 10) / 10,
     });

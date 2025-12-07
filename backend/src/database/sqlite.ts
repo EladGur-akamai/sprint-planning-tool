@@ -32,6 +32,7 @@ export const initSQLite = () => {
       start_date TEXT NOT NULL,
       end_date TEXT NOT NULL,
       is_current BOOLEAN DEFAULT 0,
+      load_factor REAL DEFAULT 0.8,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
 

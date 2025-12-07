@@ -14,6 +14,7 @@ function SprintCreateModal({ isOpen, onClose, onCreated, sprintCount }: Props) {
     name: `Sprint ${sprintCount + 1}`,
     start_date: '',
     is_current: false,
+    load_factor: 0.8,
   });
 
   if (!isOpen) return null;
@@ -29,10 +30,11 @@ function SprintCreateModal({ isOpen, onClose, onCreated, sprintCount }: Props) {
         start_date: format(startDate, 'yyyy-MM-dd'),
         end_date: format(endDate, 'yyyy-MM-dd'),
         is_current: formData.is_current,
+        load_factor: formData.load_factor,
       });
 
       onCreated();
-      setFormData({ name: `Sprint ${sprintCount + 2}`, start_date: '', is_current: false });
+      setFormData({ name: `Sprint ${sprintCount + 2}`, start_date: '', is_current: false, load_factor: 0.8 });
       onClose();
     } catch (error) {
       console.error('Failed to create sprint:', error);
@@ -41,7 +43,7 @@ function SprintCreateModal({ isOpen, onClose, onCreated, sprintCount }: Props) {
   };
 
   const handleClose = () => {
-    setFormData({ name: `Sprint ${sprintCount + 1}`, start_date: '', is_current: false });
+    setFormData({ name: `Sprint ${sprintCount + 1}`, start_date: '', is_current: false, load_factor: 0.8 });
     onClose();
   };
 
@@ -76,6 +78,24 @@ function SprintCreateModal({ isOpen, onClose, onCreated, sprintCount }: Props) {
             />
             <p className="text-xs text-gray-500 mt-2">
               Sprint will run for 2 weeks (10 working days, Sun-Thu)
+            </p>
+          </div>
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Load Factor (%)
+            </label>
+            <input
+              type="number"
+              min="0"
+              max="100"
+              step="5"
+              value={formData.load_factor * 100}
+              onChange={(e) => setFormData({ ...formData, load_factor: Number(e.target.value) / 100 })}
+              required
+              className="w-full px-4 py-2.5 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            />
+            <p className="text-xs text-gray-500 mt-2">
+              Accounts for meetings, overhead, and realistic productivity (default: 80%)
             </p>
           </div>
           <div className="flex items-center bg-blue-50 p-3 rounded-lg border border-blue-200">

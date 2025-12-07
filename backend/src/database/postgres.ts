@@ -1,17 +1,21 @@
 import { Pool } from 'pg';
-import { dbConfig } from './config';
+import { dbConfig, isPostgres } from './config';
 
-if (!dbConfig.url) {
+if (isPostgres() && !dbConfig.url) {
   throw new Error('DATABASE_URL environment variable is required for PostgreSQL');
 }
 
-export const pool = new Pool({
+export const pool = isPostgres() && dbConfig.url ? new Pool({
   connectionString: dbConfig.url,
   ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : undefined,
-});
+}) : null;
 
 // Initialize database tables
 export const initPostgres = async () => {
+  if (!pool) {
+    console.log('⚠️  PostgreSQL not configured, skipping initialization');
+    return;
+  }
   const client = await pool.connect();
   try {
     await client.query(`
@@ -29,6 +33,7 @@ export const initPostgres = async () => {
         start_date TEXT NOT NULL,
         end_date TEXT NOT NULL,
         is_current BOOLEAN DEFAULT FALSE,
+        load_factor REAL DEFAULT 0.8,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
 

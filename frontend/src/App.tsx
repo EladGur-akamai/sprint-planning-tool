@@ -201,7 +201,7 @@ function App() {
                       onHolidayToggle={handleHolidayToggle}
                     />
 
-                    {capacity && <CapacitySummary capacity={capacity} />}
+                    {capacity && <CapacitySummary capacity={capacity} onUpdate={() => loadSprintData(selectedSprint.id!)} />}
                   </>
                 )}
               </>

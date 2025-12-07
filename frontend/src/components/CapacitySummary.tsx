@@ -1,11 +1,28 @@
+import { useState } from 'react';
 import { SprintCapacity } from '../types';
 import { exportCapacityToCSV } from '../utils/csvExport';
+import { sprintApi } from '../services/api';
 
 interface Props {
   capacity: SprintCapacity;
+  onUpdate: () => void;
 }
 
-function CapacitySummary({ capacity }: Props) {
+function CapacitySummary({ capacity, onUpdate }: Props) {
+  const [loadFactor, setLoadFactor] = useState(capacity.load_factor || 0.8);
+  const [isEditing, setIsEditing] = useState(false);
+
+  const handleSaveLoadFactor = async () => {
+    try {
+      await sprintApi.update(capacity.sprint_id, { load_factor: loadFactor });
+      setIsEditing(false);
+      onUpdate();
+    } catch (error) {
+      console.error('Failed to update load factor:', error);
+      alert('Failed to update load factor');
+    }
+  };
+
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden">
       <div className="p-6">
@@ -23,6 +40,51 @@ function CapacitySummary({ capacity }: Props) {
           <div className="text-sm text-gray-600">Total Sprint Capacity</div>
           <div className="text-3xl font-bold text-blue-600">
             {capacity.total_capacity} <span className="text-lg text-gray-600">Story Points</span>
+          </div>
+          <div className="mt-3 flex items-center gap-3">
+            <span className="text-sm font-semibold text-gray-700">Load Factor:</span>
+            {isEditing ? (
+              <>
+                <input
+                  type="number"
+                  min="0"
+                  max="100"
+                  step="5"
+                  value={Math.round(loadFactor * 100)}
+                  onChange={(e) => setLoadFactor(Number(e.target.value) / 100)}
+                  className="w-20 px-2 py-1 border-2 border-blue-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <span className="text-sm text-gray-600">%</span>
+                <button
+                  onClick={handleSaveLoadFactor}
+                  className="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700"
+                >
+                  Save
+                </button>
+                <button
+                  onClick={() => {
+                    setLoadFactor(capacity.load_factor || 0.8);
+                    setIsEditing(false);
+                  }}
+                  className="px-3 py-1 bg-gray-300 text-gray-700 text-sm rounded hover:bg-gray-400"
+                >
+                  Cancel
+                </button>
+              </>
+            ) : (
+              <>
+                <span className="text-lg font-bold text-blue-600">{Math.round(loadFactor * 100)}%</span>
+                <button
+                  onClick={() => setIsEditing(true)}
+                  className="ml-2 px-3 py-1 bg-gray-200 text-gray-700 text-sm rounded hover:bg-gray-300"
+                >
+                  Edit
+                </button>
+              </>
+            )}
+          </div>
+          <div className="text-xs text-gray-500 mt-2">
+            Accounts for meetings, overhead, and realistic productivity
           </div>
         </div>
 
@@ -106,10 +168,13 @@ function CapacitySummary({ capacity }: Props) {
         <div className="mt-4 p-4 bg-gray-50 rounded-lg">
           <h4 className="text-sm font-semibold text-gray-700 mb-2">Calculation Formula:</h4>
           <p className="text-xs text-gray-600">
-            Capacity = (Default Capacity × Available Days) ÷ 10
+            Capacity = (Default Capacity × Available Days × Load Factor) ÷ 10
           </p>
           <p className="text-xs text-gray-500 mt-1">
             Where Available Days = Total Working Days - Holidays
+          </p>
+          <p className="text-xs text-gray-500">
+            Load Factor ({Math.round(loadFactor * 100)}%) = Realistic productivity accounting for meetings and overhead
           </p>
         </div>
       </div>
