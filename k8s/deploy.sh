@@ -84,7 +84,7 @@ function deploy() {
     print_info "Waiting for pods to be ready..."
 
     # kubectl wait --for=condition=ready pod -l app=postgres -n $NAMESPACE --timeout=120s  # External DB
-    kubectl wait --for=condition=ready pod -l app=backend -n $NAMESPACE --timeout=120s
+    kubectl wait --for=condition=ready pod -l app=backend -n $NAMESPACE --tieout=120s
     kubectl wait --for=condition=ready pod -l app=frontend -n $NAMESPACE --timeout=120s
 
     print_info "All pods are ready!"
