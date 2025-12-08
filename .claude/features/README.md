@@ -54,9 +54,9 @@ As a [type of user], I want [goal] so that [benefit].
 | Feature | Priority | Status | Completed |
 |---------|----------|--------|-----------|
 | [Multi-Team Support](multi-teams-support.md) | Medium | ✅ Completed | 2025-12-08 |
+| [Retro Tool](retro-tool.md) | Medium | ✅ Completed | 2025-12-07 |
 | [Configurable Capacity Formula](configurable-capacity-formula.md) | Low | ✅ Completed | 2025-12-07 |
 | [Multi Sprint Edit Support](multi-sprint-edit-support.md) | Medium | ✅ Completed | 2025-12-07 |
-| [Retro Tool](retro-tool.md) | Medium | 📋 Proposed | - |
 
 ## Current Features in Production
 
@@ -64,12 +64,14 @@ See `.claude/memory/current-implementation.md` for a complete list of implemente
 
 ### Recently Completed
 - **Multi-Team Support** (2025-12-08) - Teams can be created with logos, members can belong to multiple teams, complete data isolation
+- **Retro Tool** (2025-12-07) - Sprint retrospective with categorized feedback (what went well/wrong, lessons, action items)
 - **Configurable Capacity Formula** (2025-12-07) - Load factor per sprint (default 80%), editable in UI
 - **Multi Sprint Edit Support** (2025-12-07) - View and edit any sprint, not just the current one
 
+## All Current Features Completed ✅
+
+All features in this folder have been successfully implemented and deployed to production!
+
 ## Planned Features
 
-See `.claude/plans/future-enhancements.md` for the roadmap and planned enhancements.
-
-### Next Up
-- **Retro Tool** - Sprint retrospective with team member input and insights display
+See `.claude/plans/future-enhancements.md` for the roadmap and planned future enhancements.
