@@ -11,7 +11,7 @@ data:
   PORT: "3001"
 
 ---
-# Backend Secret (for DATABASE_URL)
+# Backend Secret (for DATABASE_URL and IMGBB_API_KEY)
 apiVersion: v1
 kind: Secret
 metadata:
@@ -19,7 +19,8 @@ metadata:
   namespace: sprint-planning
 type: Opaque
 stringData:
-  DATABASE_URL: "postgres://username:password@host:port/database"
+  DATABASE_URL: "postgres://username:password@host:port/database" # Set via kubectl in production!
+  IMGBB_API_KEY: "YOUR_IMGBB_API_KEY_HERE" # Set via kubectl in production!
 
 ---
 # Backend Deployment

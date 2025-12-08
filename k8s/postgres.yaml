@@ -18,7 +18,7 @@ metadata:
   namespace: sprint-planning
 type: Opaque
 stringData:
-  POSTGRES_PASSWORD: "YOUR_POSTGRES_PASSWORD_HERE" # Change this in production!
+  POSTGRES_PASSWORD: "YOUR_POSTGRES_PASSWORD_HERE" # Set via kubectl in production!
 
 ---
 # PostgreSQL PersistentVolumeClaim
