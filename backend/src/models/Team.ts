@@ -1,4 +1,5 @@
 import { queryAll, queryOne, queryInsert, queryRun } from '../database/queries';
+import { isSQLite } from '../database/config';
 import { TeamMember } from './TeamMember';
 
 export interface Team {
@@ -63,10 +64,11 @@ export class TeamModel {
 
   // Add a member to a team
   static async addMemberToTeam(teamId: number, memberId: number): Promise<void> {
-    await queryRun(
-      'INSERT OR IGNORE INTO team_members_teams (team_id, member_id) VALUES (?, ?)',
-      [teamId, memberId]
-    );
+    const sql = isSQLite()
+      ? 'INSERT OR IGNORE INTO team_members_teams (team_id, member_id) VALUES (?, ?)'
+      : 'INSERT INTO team_members_teams (team_id, member_id) VALUES (?, ?) ON CONFLICT (team_id, member_id) DO NOTHING';
+
+    await queryRun(sql, [teamId, memberId]);
   }
 
   // Remove a member from a team
