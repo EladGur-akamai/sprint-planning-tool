@@ -46,6 +46,17 @@ export const initPostgres = async () => {
         FOREIGN KEY (member_id) REFERENCES team_members(id) ON DELETE CASCADE,
         UNIQUE(sprint_id, member_id, date)
       );
+
+      CREATE TABLE IF NOT EXISTS retro_items (
+        id SERIAL PRIMARY KEY,
+        sprint_id INTEGER NOT NULL,
+        member_id INTEGER NOT NULL,
+        type TEXT NOT NULL CHECK(type IN ('lesson_learned', 'todo', 'what_went_well', 'what_went_wrong')),
+        content TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (sprint_id) REFERENCES sprints(id) ON DELETE CASCADE,
+        FOREIGN KEY (member_id) REFERENCES team_members(id) ON DELETE CASCADE
+      );
     `);
     console.log('✅ PostgreSQL tables initialized');
   } catch (error) {

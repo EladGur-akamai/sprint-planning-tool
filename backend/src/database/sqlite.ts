@@ -45,6 +45,17 @@ export const initSQLite = () => {
       FOREIGN KEY (member_id) REFERENCES team_members(id) ON DELETE CASCADE,
       UNIQUE(sprint_id, member_id, date)
     );
+
+    CREATE TABLE IF NOT EXISTS retro_items (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      sprint_id INTEGER NOT NULL,
+      member_id INTEGER NOT NULL,
+      type TEXT NOT NULL CHECK(type IN ('lesson_learned', 'todo', 'what_went_well', 'what_went_wrong')),
+      content TEXT NOT NULL,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (sprint_id) REFERENCES sprints(id) ON DELETE CASCADE,
+      FOREIGN KEY (member_id) REFERENCES team_members(id) ON DELETE CASCADE
+    );
   `);
   console.log('✅ SQLite tables initialized');
 };

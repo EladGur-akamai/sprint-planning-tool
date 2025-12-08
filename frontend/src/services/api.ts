@@ -1,6 +1,6 @@
-import { TeamMember, Sprint, Holiday, SprintCapacity } from '../types';
+import { TeamMember, Sprint, Holiday, SprintCapacity, RetroItem } from '../types';
 
-const API_BASE = 'http://66.228.63.81:3001/api';
+const API_BASE = '/api';
 
 // Team Members
 export const teamMemberApi = {
@@ -103,5 +103,41 @@ export const holidayApi = {
     });
     if (!res.ok) throw new Error('Failed to toggle holiday');
     return res.json();
+  },
+};
+
+// Retro Items
+export const retroApi = {
+  getBySprintId: async (sprintId: number): Promise<RetroItem[]> => {
+    const res = await fetch(`${API_BASE}/retro/sprint/${sprintId}`);
+    if (!res.ok) throw new Error('Failed to fetch retro items');
+    return res.json();
+  },
+
+  create: async (item: Omit<RetroItem, 'id' | 'created_at'>): Promise<RetroItem> => {
+    const res = await fetch(`${API_BASE}/retro`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(item),
+    });
+    if (!res.ok) throw new Error('Failed to create retro item');
+    return res.json();
+  },
+
+  update: async (id: number, item: Partial<RetroItem>): Promise<RetroItem> => {
+    const res = await fetch(`${API_BASE}/retro/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(item),
+    });
+    if (!res.ok) throw new Error('Failed to update retro item');
+    return res.json();
+  },
+
+  delete: async (id: number): Promise<void> => {
+    const res = await fetch(`${API_BASE}/retro/${id}`, {
+      method: 'DELETE',
+    });
+    if (!res.ok) throw new Error('Failed to delete retro item');
   },
 };

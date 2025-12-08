@@ -41,3 +41,14 @@ export interface SprintCapacity {
   member_capacities: MemberCapacity[];
   total_capacity: number;
 }
+
+export type RetroItemType = 'lesson_learned' | 'todo' | 'what_went_well' | 'what_went_wrong';
+
+export interface RetroItem {
+  id?: number;
+  sprint_id: number;
+  member_id: number;
+  type: RetroItemType;
+  content: string;
+  created_at?: string;
+}

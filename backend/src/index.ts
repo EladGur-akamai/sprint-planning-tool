@@ -3,6 +3,7 @@ import cors from 'cors';
 import teamMemberRoutes from './routes/teamMemberRoutes';
 import sprintRoutes from './routes/sprintRoutes';
 import holidayRoutes from './routes/holidayRoutes';
+import retroRoutes from './routes/retroRoutes';
 import { initDatabase } from './database/db';
 import { dbConfig } from './database/config';
 
@@ -17,6 +18,7 @@ app.use(express.json());
 app.use('/api/members', teamMemberRoutes);
 app.use('/api/sprints', sprintRoutes);
 app.use('/api/holidays', holidayRoutes);
+app.use('/api/retro', retroRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

@@ -6,6 +6,8 @@ import SprintCalendar from './components/SprintCalendar';
 import CapacitySummary from './components/CapacitySummary';
 import SprintSelector from './components/SprintSelector';
 import SprintCreateModal from './components/SprintCreateModal';
+import SprintRetro from './components/SprintRetro';
+import RetroInsights from './components/RetroInsights';
 
 function App() {
   const [currentSprint, setCurrentSprint] = useState<Sprint | null>(null);
@@ -15,7 +17,7 @@ function App() {
   const [holidays, setHolidays] = useState<Holiday[]>([]);
   const [capacity, setCapacity] = useState<SprintCapacity | null>(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'planning' | 'team'>('planning');
+  const [activeTab, setActiveTab] = useState<'planning' | 'team' | 'retro'>('planning');
   const [showCreateModal, setShowCreateModal] = useState(false);
 
   const loadData = async () => {
@@ -152,6 +154,16 @@ function App() {
             >
               Team Management
             </button>
+            <button
+              onClick={() => setActiveTab('retro')}
+              className={`px-4 py-2 rounded-md font-medium transition ${
+                activeTab === 'retro'
+                  ? 'bg-purple-600 text-white'
+                  : 'text-gray-700 hover:bg-gray-100'
+              }`}
+            >
+              Retrospective
+            </button>
           </div>
         </div>
       </nav>
@@ -192,6 +204,8 @@ function App() {
                   onDeleteSprint={handleDeleteSprint}
                 />
 
+                {selectedSprint && <RetroInsights currentSprint={selectedSprint} allSprints={allSprints} />}
+
                 {selectedSprint && (
                   <>
                     <SprintCalendar
@@ -211,6 +225,35 @@ function App() {
 
         {activeTab === 'team' && (
           <TeamManagement members={teamMembers} onUpdate={handleTeamChange} />
+        )}
+
+        {activeTab === 'retro' && (
+          <div className="space-y-6">
+            {allSprints.length === 0 ? (
+              <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-lg">
+                <p className="text-yellow-700">No sprints available. Please create a sprint first.</p>
+              </div>
+            ) : (
+              <>
+                <SprintSelector
+                  sprints={allSprints}
+                  selectedSprint={selectedSprint}
+                  currentSprintId={currentSprint?.id || null}
+                  onSprintChange={handleSprintSelection}
+                  onCreateSprint={handleCreateSprint}
+                  onDeleteSprint={handleDeleteSprint}
+                />
+
+                {selectedSprint ? (
+                  <SprintRetro sprint={selectedSprint} teamMembers={teamMembers} />
+                ) : (
+                  <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-lg">
+                    <p className="text-yellow-700">Please select a sprint to view its retrospective.</p>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
         )}
       </main>
 
