@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { SprintModel } from '../models/Sprint';
 import { HolidayModel } from '../models/Holiday';
 import { TeamMemberModel } from '../models/TeamMember';
+import { TeamModel } from '../models/Team';
 import { eachDayOfInterval, parseISO, format, getDay } from 'date-fns';
 
 // Helper function for Israel work week (Sunday-Thursday)
@@ -108,7 +109,8 @@ export const getSprintCapacity = async (req: Request, res: Response) => {
       return res.status(404).json({ error: 'Sprint not found' });
     }
 
-    const members = await TeamMemberModel.getAll();
+    // Get only team members assigned to this sprint's team
+    const members = await TeamModel.getMembersByTeamId(sprint.team_id);
     const holidays = await HolidayModel.getBySprintId(id);
 
     // Calculate working days (Sun-Thu) in sprint - Israel work week
