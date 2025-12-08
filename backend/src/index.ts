@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import teamRoutes from './routes/teamRoutes';
 import teamMemberRoutes from './routes/teamMemberRoutes';
 import sprintRoutes from './routes/sprintRoutes';
 import holidayRoutes from './routes/holidayRoutes';
@@ -12,9 +13,11 @@ const PORT = dbConfig.port;
 
 // Middleware
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '10mb' })); // Increase limit for image uploads
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
 // Routes
+app.use('/api/teams', teamRoutes);
 app.use('/api/members', teamMemberRoutes);
 app.use('/api/sprints', sprintRoutes);
 app.use('/api/holidays', holidayRoutes);

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { RetroItem, RetroItemType, Sprint, TeamMember } from '../types';
 import { retroApi } from '../services/api';
+import { useTeam } from '../contexts/TeamContext';
 
 interface Props {
   sprint: Sprint;
@@ -15,6 +16,7 @@ const RETRO_TYPES: { value: RetroItemType; label: string; emoji: string; color: 
 ];
 
 function SprintRetro({ sprint, teamMembers }: Props) {
+  const { currentTeam } = useTeam();
   const [retroItems, setRetroItems] = useState<RetroItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedMember, setSelectedMember] = useState<number | ''>('');
@@ -39,12 +41,13 @@ function SprintRetro({ sprint, teamMembers }: Props) {
 
   const handleAddItem = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedMember || !newItemContent.trim()) return;
+    if (!selectedMember || !newItemContent.trim() || !currentTeam?.id) return;
 
     try {
       await retroApi.create({
         sprint_id: sprint.id!,
         member_id: selectedMember as number,
+        team_id: currentTeam.id,
         type: selectedType,
         content: newItemContent.trim(),
       });

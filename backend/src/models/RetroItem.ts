@@ -6,6 +6,7 @@ export interface RetroItem {
   id?: number;
   sprint_id: number;
   member_id: number;
+  team_id: number;
   type: RetroItemType;
   content: string;
   created_at?: string;
@@ -19,14 +20,21 @@ export class RetroItemModel {
     );
   }
 
+  static async getByTeamId(teamId: number): Promise<RetroItem[]> {
+    return queryAll<RetroItem>(
+      'SELECT * FROM retro_items WHERE team_id = ? ORDER BY created_at DESC',
+      [teamId]
+    );
+  }
+
   static async getById(id: number): Promise<RetroItem | undefined> {
     return queryOne<RetroItem>('SELECT * FROM retro_items WHERE id = ?', [id]);
   }
 
   static async create(item: Omit<RetroItem, 'id' | 'created_at'>): Promise<RetroItem> {
     const result = await queryInsert<RetroItem>(
-      'INSERT INTO retro_items (sprint_id, member_id, type, content) VALUES (?, ?, ?, ?)',
-      [item.sprint_id, item.member_id, item.type, item.content]
+      'INSERT INTO retro_items (sprint_id, member_id, team_id, type, content) VALUES (?, ?, ?, ?, ?)',
+      [item.sprint_id, item.member_id, item.team_id, item.type, item.content]
     );
     return { ...item, ...result };
   }

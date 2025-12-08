@@ -1,6 +1,93 @@
-import { TeamMember, Sprint, Holiday, SprintCapacity, RetroItem } from '../types';
+import { Team, TeamMember, Sprint, Holiday, SprintCapacity, RetroItem } from '../types';
 
 const API_BASE = '/api';
+
+// Teams
+export const teamApi = {
+  getAll: async (): Promise<Team[]> => {
+    const res = await fetch(`${API_BASE}/teams`);
+    if (!res.ok) throw new Error('Failed to fetch teams');
+    return res.json();
+  },
+
+  getById: async (id: number): Promise<Team> => {
+    const res = await fetch(`${API_BASE}/teams/${id}`);
+    if (!res.ok) throw new Error('Failed to fetch team');
+    return res.json();
+  },
+
+  create: async (team: Omit<Team, 'id' | 'created_at'>): Promise<Team> => {
+    const res = await fetch(`${API_BASE}/teams`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(team),
+    });
+    if (!res.ok) throw new Error('Failed to create team');
+    return res.json();
+  },
+
+  update: async (id: number, team: Partial<Team>): Promise<Team> => {
+    const res = await fetch(`${API_BASE}/teams/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(team),
+    });
+    if (!res.ok) throw new Error('Failed to update team');
+    return res.json();
+  },
+
+  delete: async (id: number): Promise<void> => {
+    const res = await fetch(`${API_BASE}/teams/${id}`, {
+      method: 'DELETE',
+    });
+    if (!res.ok) throw new Error('Failed to delete team');
+  },
+
+  getMembers: async (teamId: number): Promise<TeamMember[]> => {
+    const res = await fetch(`${API_BASE}/teams/${teamId}/members`);
+    if (!res.ok) throw new Error('Failed to fetch team members');
+    return res.json();
+  },
+
+  addMember: async (teamId: number, memberId: number): Promise<void> => {
+    const res = await fetch(`${API_BASE}/teams/${teamId}/members`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ member_id: memberId }),
+    });
+    if (!res.ok) throw new Error('Failed to add member to team');
+  },
+
+  removeMember: async (teamId: number, memberId: number): Promise<void> => {
+    const res = await fetch(`${API_BASE}/teams/${teamId}/members/${memberId}`, {
+      method: 'DELETE',
+    });
+    if (!res.ok) throw new Error('Failed to remove member from team');
+  },
+
+  uploadLogo: async (teamId: number, imageFile: File): Promise<Team> => {
+    // Convert file to base64
+    const reader = new FileReader();
+    const base64 = await new Promise<string>((resolve, reject) => {
+      reader.onload = () => {
+        const result = reader.result as string;
+        // Remove data:image/...;base64, prefix
+        const base64 = result.split(',')[1];
+        resolve(base64);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(imageFile);
+    });
+
+    const res = await fetch(`${API_BASE}/teams/${teamId}/logo`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ image: base64 }),
+    });
+    if (!res.ok) throw new Error('Failed to upload logo');
+    return res.json();
+  },
+};
 
 // Team Members
 export const teamMemberApi = {
@@ -40,14 +127,16 @@ export const teamMemberApi = {
 
 // Sprints
 export const sprintApi = {
-  getAll: async (): Promise<Sprint[]> => {
-    const res = await fetch(`${API_BASE}/sprints`);
+  getAll: async (teamId?: number): Promise<Sprint[]> => {
+    const url = teamId ? `${API_BASE}/sprints?teamId=${teamId}` : `${API_BASE}/sprints`;
+    const res = await fetch(url);
     if (!res.ok) throw new Error('Failed to fetch sprints');
     return res.json();
   },
 
-  getCurrent: async (): Promise<Sprint | null> => {
-    const res = await fetch(`${API_BASE}/sprints/current`);
+  getCurrent: async (teamId?: number): Promise<Sprint | null> => {
+    const url = teamId ? `${API_BASE}/sprints/current?teamId=${teamId}` : `${API_BASE}/sprints/current`;
+    const res = await fetch(url);
     if (res.status === 404) return null;
     if (!res.ok) throw new Error('Failed to fetch current sprint');
     return res.json();

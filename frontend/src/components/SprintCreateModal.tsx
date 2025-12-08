@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { sprintApi } from '../services/api';
+import { useTeam } from '../contexts/TeamContext';
 import { format, addDays, addWeeks } from 'date-fns';
 
 interface Props {
@@ -10,6 +11,7 @@ interface Props {
 }
 
 function SprintCreateModal({ isOpen, onClose, onCreated, sprintCount }: Props) {
+  const { currentTeam } = useTeam();
   const [formData, setFormData] = useState({
     name: `Sprint ${sprintCount + 1}`,
     start_date: '',
@@ -21,11 +23,14 @@ function SprintCreateModal({ isOpen, onClose, onCreated, sprintCount }: Props) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!currentTeam?.id) return;
+
     try {
       const startDate = new Date(formData.start_date);
       const endDate = addDays(addWeeks(startDate, 2), -1);
 
       await sprintApi.create({
+        team_id: currentTeam.id,
         name: formData.name,
         start_date: format(startDate, 'yyyy-MM-dd'),
         end_date: format(endDate, 'yyyy-MM-dd'),

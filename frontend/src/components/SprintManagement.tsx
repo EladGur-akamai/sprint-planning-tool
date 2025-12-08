@@ -2,12 +2,14 @@ import { useState, useEffect } from 'react';
 import { Sprint } from '../types';
 import { sprintApi } from '../services/api';
 import { format, addDays, addWeeks } from 'date-fns';
+import { useTeam } from '../contexts/TeamContext';
 
 interface Props {
   onUpdate: () => void;
 }
 
 function SprintManagement({ onUpdate }: Props) {
+  const { currentTeam } = useTeam();
   const [sprints, setSprints] = useState<Sprint[]>([]);
   const [isAdding, setIsAdding] = useState(false);
   const [formData, setFormData] = useState({
@@ -36,11 +38,18 @@ function SprintManagement({ onUpdate }: Props) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!currentTeam?.id) {
+      alert('No team selected. Please select a team first.');
+      return;
+    }
+
     try {
       const startDate = new Date(formData.start_date);
       const endDate = addDays(addWeeks(startDate, 2), -1); // 2 weeks - 1 day
 
       await sprintApi.create({
+        team_id: currentTeam.id,
         name: formData.name,
         start_date: format(startDate, 'yyyy-MM-dd'),
         end_date: format(endDate, 'yyyy-MM-dd'),

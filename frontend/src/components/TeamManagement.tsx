@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { TeamMember } from '../types';
-import { teamMemberApi } from '../services/api';
+import { teamMemberApi, teamApi } from '../services/api';
+import { useTeam } from '../contexts/TeamContext';
 
 interface Props {
   members: TeamMember[];
@@ -8,6 +9,7 @@ interface Props {
 }
 
 function TeamManagement({ members, onUpdate }: Props) {
+  const { currentTeam } = useTeam();
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [formData, setFormData] = useState({
@@ -24,17 +26,31 @@ function TeamManagement({ members, onUpdate }: Props) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!currentTeam?.id) {
+      alert('No team selected. Please select a team first.');
+      console.error('No currentTeam available');
+      return;
+    }
+
     try {
       if (editingId) {
         await teamMemberApi.update(editingId, formData);
       } else {
-        await teamMemberApi.create(formData);
+        // Create member and automatically assign to current team
+        console.log('Creating member:', formData);
+        const newMember = await teamMemberApi.create(formData);
+        console.log('Member created:', newMember);
+
+        console.log('Adding member to team:', currentTeam.id, newMember.id);
+        await teamApi.addMember(currentTeam.id, newMember.id!);
+        console.log('Member added to team');
       }
       onUpdate();
       resetForm();
     } catch (error) {
       console.error('Failed to save team member:', error);
-      alert('Failed to save team member');
+      alert('Failed to save team member: ' + (error as Error).message);
     }
   };
 

@@ -13,6 +13,16 @@ export class TeamMemberModel {
     return queryAll<TeamMember>('SELECT * FROM team_members ORDER BY name');
   }
 
+  static async getByTeamId(teamId: number): Promise<TeamMember[]> {
+    return queryAll<TeamMember>(
+      `SELECT tm.* FROM team_members tm
+       INNER JOIN team_members_teams tmt ON tm.id = tmt.member_id
+       WHERE tmt.team_id = ?
+       ORDER BY tm.name`,
+      [teamId]
+    );
+  }
+
   static async getById(id: number): Promise<TeamMember | undefined> {
     return queryOne<TeamMember>('SELECT * FROM team_members WHERE id = ?', [id]);
   }

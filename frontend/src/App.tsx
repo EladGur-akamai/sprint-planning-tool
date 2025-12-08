@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Sprint, TeamMember, Holiday, SprintCapacity } from './types';
-import { sprintApi, teamMemberApi, holidayApi } from './services/api';
+import { Sprint, TeamMember, Holiday, SprintCapacity, Team } from './types';
+import { sprintApi, holidayApi, teamApi } from './services/api';
+import { TeamProvider, useTeam } from './contexts/TeamContext';
+import { TeamSidebar } from './components/TeamSidebar';
+import { TeamManagementModal } from './components/TeamManagementModal';
 import TeamManagement from './components/TeamManagement';
 import SprintCalendar from './components/SprintCalendar';
 import CapacitySummary from './components/CapacitySummary';
@@ -9,7 +12,8 @@ import SprintCreateModal from './components/SprintCreateModal';
 import SprintRetro from './components/SprintRetro';
 import RetroInsights from './components/RetroInsights';
 
-function App() {
+function AppContent() {
+  const { currentTeam, isLoading: teamLoading } = useTeam();
   const [currentSprint, setCurrentSprint] = useState<Sprint | null>(null);
   const [allSprints, setAllSprints] = useState<Sprint[]>([]);
   const [selectedSprint, setSelectedSprint] = useState<Sprint | null>(null);
@@ -19,14 +23,18 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'planning' | 'team' | 'retro'>('planning');
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showTeamModal, setShowTeamModal] = useState(false);
+  const [editTeam, setEditTeam] = useState<Team | null>(null);
 
   const loadData = async () => {
+    if (!currentTeam?.id) return;
+
     try {
       setLoading(true);
       const [currentSprintData, allSprintsData, members] = await Promise.all([
-        sprintApi.getCurrent(),
-        sprintApi.getAll(),
-        teamMemberApi.getAll(),
+        sprintApi.getCurrent(currentTeam.id),
+        sprintApi.getAll(currentTeam.id),
+        teamApi.getMembers(currentTeam.id),
       ]);
 
       setCurrentSprint(currentSprintData);
@@ -74,8 +82,10 @@ function App() {
   };
 
   useEffect(() => {
-    loadData();
-  }, []);
+    if (currentTeam) {
+      loadData();
+    }
+  }, [currentTeam]);
 
   const handleSprintChange = () => {
     loadData();
@@ -103,6 +113,16 @@ function App() {
     }
   };
 
+  const handleEditTeam = (team: Team) => {
+    setEditTeam(team);
+    setShowTeamModal(true);
+  };
+
+  const handleCloseTeamModal = () => {
+    setShowTeamModal(false);
+    setEditTeam(null);
+  };
+
   const handleHolidayToggle = async (memberId: number, date: string) => {
     if (!selectedSprint?.id) return;
 
@@ -114,7 +134,7 @@ function App() {
     }
   };
 
-  if (loading) {
+  if (teamLoading || loading) {
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
         <div className="text-xl text-gray-600">Loading...</div>
@@ -122,14 +142,30 @@ function App() {
     );
   }
 
+  if (!currentTeam) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <div className="text-xl text-gray-600">No team available. Please create a team first.</div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-gray-100">
-      <header className="bg-blue-600 text-white shadow-lg">
-        <div className="container mx-auto px-4 py-6">
-          <h1 className="text-3xl font-bold">Team Extreme</h1>
-          <p className="text-blue-100 mt-1">Manage your team's sprint capacity and holidays</p>
-        </div>
-      </header>
+    <>
+      <TeamSidebar onAddTeam={() => setShowTeamModal(true)} onEditTeam={handleEditTeam} />
+      <TeamManagementModal
+        isOpen={showTeamModal}
+        onClose={handleCloseTeamModal}
+        editTeam={editTeam}
+      />
+
+      <div className="min-h-screen bg-gray-100 ml-64">
+        <header className="bg-blue-600 text-white shadow-lg">
+          <div className="container mx-auto px-4 py-6">
+            <h1 className="text-3xl font-bold">{currentTeam.name}</h1>
+            <p className="text-blue-100 mt-1">Manage your team's sprint capacity and holidays</p>
+          </div>
+        </header>
 
       <nav className="bg-white shadow-md">
         <div className="container mx-auto px-4">
@@ -257,19 +293,28 @@ function App() {
         )}
       </main>
 
-      <SprintCreateModal
-        isOpen={showCreateModal}
-        onClose={() => setShowCreateModal(false)}
-        onCreated={handleSprintChange}
-        sprintCount={allSprints.length}
-      />
+        <SprintCreateModal
+          isOpen={showCreateModal}
+          onClose={() => setShowCreateModal(false)}
+          onCreated={handleSprintChange}
+          sprintCount={allSprints.length}
+        />
 
-      <footer className="bg-white border-t mt-12">
-        <div className="container mx-auto px-4 py-6 text-center text-gray-600">
-          <p>Team Extreme - Built with love by Elad Gur</p>
-        </div>
-      </footer>
-    </div>
+        <footer className="bg-white border-t mt-12">
+          <div className="container mx-auto px-4 py-6 text-center text-gray-600">
+            <p>Team Extreme - Built with love by Elad Gur</p>
+          </div>
+        </footer>
+      </div>
+    </>
+  );
+}
+
+function App() {
+  return (
+    <TeamProvider>
+      <AppContent />
+    </TeamProvider>
   );
 }
 

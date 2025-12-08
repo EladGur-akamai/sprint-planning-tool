@@ -12,7 +12,8 @@ const isIsraeliWeekend = (date: Date): boolean => {
 
 export const getAllSprints = async (req: Request, res: Response) => {
   try {
-    const sprints = await SprintModel.getAll();
+    const teamId = req.query.teamId ? parseInt(req.query.teamId as string) : undefined;
+    const sprints = await SprintModel.getAll(teamId);
     res.json(sprints);
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch sprints' });
@@ -34,7 +35,8 @@ export const getSprintById = async (req: Request, res: Response) => {
 
 export const getCurrentSprint = async (req: Request, res: Response) => {
   try {
-    const sprint = await SprintModel.getCurrent();
+    const teamId = req.query.teamId ? parseInt(req.query.teamId as string) : undefined;
+    const sprint = await SprintModel.getCurrent(teamId);
     if (!sprint) {
       return res.status(404).json({ error: 'No current sprint found' });
     }
@@ -46,13 +48,14 @@ export const getCurrentSprint = async (req: Request, res: Response) => {
 
 export const createSprint = async (req: Request, res: Response) => {
   try {
-    const { name, start_date, end_date, is_current, load_factor } = req.body;
+    const { team_id, name, start_date, end_date, is_current, load_factor } = req.body;
 
-    if (!name || !start_date || !end_date) {
+    if (!name || !start_date || !end_date || !team_id) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
     const sprint = await SprintModel.create({
+      team_id,
       name,
       start_date,
       end_date,
@@ -61,7 +64,8 @@ export const createSprint = async (req: Request, res: Response) => {
     });
     res.status(201).json(sprint);
   } catch (error) {
-    res.status(500).json({ error: 'Failed to create sprint' });
+    console.error('Failed to create sprint:', error);
+    res.status(500).json({ error: 'Failed to create sprint', details: (error as Error).message });
   }
 };
 

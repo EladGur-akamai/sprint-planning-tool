@@ -13,15 +13,16 @@ export const getRetroItemsBySprintId = async (req: Request, res: Response) => {
 
 export const createRetroItem = async (req: Request, res: Response) => {
   try {
-    const { sprint_id, member_id, type, content } = req.body;
+    const { sprint_id, member_id, team_id, type, content } = req.body;
 
-    if (!sprint_id || !member_id || !type || !content) {
+    if (!sprint_id || !member_id || !team_id || !type || !content) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
     const item = await RetroItemModel.create({
       sprint_id,
       member_id,
+      team_id,
       type,
       content,
     });

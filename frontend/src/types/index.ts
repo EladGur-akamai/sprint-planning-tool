@@ -1,3 +1,10 @@
+export interface Team {
+  id?: number;
+  name: string;
+  logo_url: string | null;
+  created_at?: string;
+}
+
 export interface TeamMember {
   id?: number;
   name: string;
@@ -8,6 +15,7 @@ export interface TeamMember {
 
 export interface Sprint {
   id?: number;
+  team_id: number;
   name: string;
   start_date: string;
   end_date: string;
@@ -48,6 +56,7 @@ export interface RetroItem {
   id?: number;
   sprint_id: number;
   member_id: number;
+  team_id: number;
   type: RetroItemType;
   content: string;
   created_at?: string;
