@@ -25,7 +25,8 @@
       "Bash(docker push:*)",
       "Bash(docker buildx use:*)",
       "Bash(docker buildx build:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(sqlite3:*)"
     ],
     "deny": [],
     "ask": []

@@ -1,9 +1,13 @@
 import { queryAll, queryOne, queryInsert, queryRun, queryExec } from '../database/queries';
+import { parseISO, getQuarter, getYear } from 'date-fns';
 
 export interface Sprint {
   id?: number;
   team_id: number;
+  template_id?: number | null;
   name: string;
+  year?: number | null;
+  quarter?: number | null;
   start_date: string;
   end_date: string;
   is_current: boolean;
@@ -40,11 +44,17 @@ export class SprintModel {
     // Convert boolean to integer for SQLite
     const is_current = sprint.is_current ? 1 : 0;
 
+    // Automatically calculate year and quarter from start_date if not provided
+    const startDate = parseISO(sprint.start_date);
+    const year = sprint.year !== undefined ? sprint.year : getYear(startDate);
+    const quarter = sprint.quarter !== undefined ? sprint.quarter : getQuarter(startDate);
+    const template_id = sprint.template_id || null;
+
     const result = await queryInsert<Sprint>(
-      'INSERT INTO sprints (team_id, name, start_date, end_date, is_current, load_factor) VALUES (?, ?, ?, ?, ?, ?)',
-      [sprint.team_id, sprint.name, sprint.start_date, sprint.end_date, is_current, load_factor]
+      'INSERT INTO sprints (team_id, template_id, name, year, quarter, start_date, end_date, is_current, load_factor) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      [sprint.team_id, template_id, sprint.name, year, quarter, sprint.start_date, sprint.end_date, is_current, load_factor]
     );
-    return { ...sprint, ...result };
+    return { ...sprint, year, quarter, template_id, ...result };
   }
 
   static async update(id: number, sprint: Partial<Omit<Sprint, 'id' | 'created_at'>>): Promise<boolean> {
@@ -75,6 +85,14 @@ export class SprintModel {
     if (sprint.load_factor !== undefined) {
       fields.push('load_factor = ?');
       values.push(sprint.load_factor);
+    }
+    if (sprint.year !== undefined) {
+      fields.push('year = ?');
+      values.push(sprint.year);
+    }
+    if (sprint.quarter !== undefined) {
+      fields.push('quarter = ?');
+      values.push(sprint.quarter);
     }
 
     if (fields.length === 0) return false;

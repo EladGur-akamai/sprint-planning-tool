@@ -7,21 +7,21 @@ import { TeamManagementModal } from './components/TeamManagementModal';
 import TeamManagement from './components/TeamManagement';
 import SprintCalendar from './components/SprintCalendar';
 import CapacitySummary from './components/CapacitySummary';
-import SprintSelector from './components/SprintSelector';
+import { HierarchicalSprintSelector } from './components/HierarchicalSprintSelector';
+import { SprintTemplateManager } from './components/SprintTemplateManager';
 import SprintCreateModal from './components/SprintCreateModal';
 import SprintRetro from './components/SprintRetro';
 import RetroInsights from './components/RetroInsights';
 
 function AppContent() {
   const { currentTeam, isLoading: teamLoading } = useTeam();
-  const [currentSprint, setCurrentSprint] = useState<Sprint | null>(null);
   const [allSprints, setAllSprints] = useState<Sprint[]>([]);
   const [selectedSprint, setSelectedSprint] = useState<Sprint | null>(null);
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [holidays, setHolidays] = useState<Holiday[]>([]);
   const [capacity, setCapacity] = useState<SprintCapacity | null>(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'planning' | 'team' | 'retro'>('planning');
+  const [activeTab, setActiveTab] = useState<'planning' | 'team' | 'retro' | 'templates'>('planning');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showTeamModal, setShowTeamModal] = useState(false);
   const [editTeam, setEditTeam] = useState<Team | null>(null);
@@ -37,7 +37,6 @@ function AppContent() {
         teamApi.getMembers(currentTeam.id),
       ]);
 
-      setCurrentSprint(currentSprintData);
       setAllSprints(allSprintsData);
       setTeamMembers(members);
 
@@ -110,6 +109,20 @@ function AppContent() {
     } catch (error) {
       console.error('Failed to delete sprint:', error);
       alert('Failed to delete sprint');
+    }
+  };
+
+  const handleSetCurrent = async (sprintId: number) => {
+    if (!confirm('Mark this sprint as the current active sprint?')) {
+      return;
+    }
+
+    try {
+      await sprintApi.update(sprintId, { is_current: true });
+      await loadData();
+    } catch (error) {
+      console.error('Failed to set sprint as current:', error);
+      alert('Failed to set sprint as current');
     }
   };
 
@@ -200,6 +213,16 @@ function AppContent() {
             >
               Retrospective
             </button>
+            <button
+              onClick={() => setActiveTab('templates')}
+              className={`px-4 py-2 rounded-md font-medium transition ${
+                activeTab === 'templates'
+                  ? 'bg-green-600 text-white'
+                  : 'text-gray-700 hover:bg-gray-100'
+              }`}
+            >
+              Sprint Templates
+            </button>
           </div>
         </div>
       </nav>
@@ -231,14 +254,30 @@ function AppContent() {
               </div>
             ) : (
               <>
-                <SprintSelector
-                  sprints={allSprints}
-                  selectedSprint={selectedSprint}
-                  currentSprintId={currentSprint?.id || null}
-                  onSprintChange={handleSprintSelection}
-                  onCreateSprint={handleCreateSprint}
-                  onDeleteSprint={handleDeleteSprint}
-                />
+                <div className="bg-white rounded-xl shadow-md p-6 mb-6">
+                  <HierarchicalSprintSelector
+                    teamId={currentTeam?.id}
+                    selectedSprint={selectedSprint}
+                    onSprintChange={handleSprintSelection}
+                    onSetCurrent={handleSetCurrent}
+                  />
+                  <div className="mt-4 flex gap-3">
+                    <button
+                      onClick={handleCreateSprint}
+                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all shadow-md font-medium"
+                    >
+                      + Create Sprint
+                    </button>
+                    {selectedSprint && (
+                      <button
+                        onClick={() => handleDeleteSprint(selectedSprint.id!)}
+                        className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all shadow-md font-medium"
+                      >
+                        Delete Sprint
+                      </button>
+                    )}
+                  </div>
+                </div>
 
                 {selectedSprint && <RetroInsights currentSprint={selectedSprint} allSprints={allSprints} />}
 
@@ -271,14 +310,14 @@ function AppContent() {
               </div>
             ) : (
               <>
-                <SprintSelector
-                  sprints={allSprints}
-                  selectedSprint={selectedSprint}
-                  currentSprintId={currentSprint?.id || null}
-                  onSprintChange={handleSprintSelection}
-                  onCreateSprint={handleCreateSprint}
-                  onDeleteSprint={handleDeleteSprint}
-                />
+                <div className="bg-white rounded-xl shadow-md p-6 mb-6">
+                  <HierarchicalSprintSelector
+                    teamId={currentTeam?.id}
+                    selectedSprint={selectedSprint}
+                    onSprintChange={handleSprintSelection}
+                    onSetCurrent={handleSetCurrent}
+                  />
+                </div>
 
                 {selectedSprint ? (
                   <SprintRetro sprint={selectedSprint} teamMembers={teamMembers} />
@@ -289,6 +328,12 @@ function AppContent() {
                 )}
               </>
             )}
+          </div>
+        )}
+
+        {activeTab === 'templates' && (
+          <div className="space-y-6">
+            <SprintTemplateManager />
           </div>
         )}
       </main>

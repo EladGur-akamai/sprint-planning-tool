@@ -16,10 +16,26 @@ export interface TeamMember {
 export interface Sprint {
   id?: number;
   team_id: number;
+  template_id?: number | null;
   name: string;
+  year?: number | null;
+  quarter?: number | null;
   start_date: string;
   end_date: string;
   is_current: boolean;
+  load_factor: number;
+  created_at?: string;
+}
+
+export interface SprintTemplate {
+  id?: number;
+  name: string;
+  year: number;
+  quarter: number;
+  sprint_number: number;
+  start_date: string;
+  end_date: string;
+  duration_weeks: number;
   load_factor: number;
   created_at?: string;
 }

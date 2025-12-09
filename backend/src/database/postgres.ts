@@ -49,6 +49,21 @@ export const initPostgres = async () => {
         UNIQUE(team_id, member_id)
       );
 
+      -- Create sprint templates table
+      CREATE TABLE IF NOT EXISTS sprint_templates (
+        id SERIAL PRIMARY KEY,
+        name TEXT NOT NULL,
+        year INTEGER NOT NULL,
+        quarter INTEGER NOT NULL,
+        sprint_number INTEGER NOT NULL,
+        start_date TEXT NOT NULL,
+        end_date TEXT NOT NULL,
+        duration_weeks INTEGER NOT NULL,
+        load_factor REAL DEFAULT 0.8,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(year, quarter, sprint_number)
+      );
+
       -- Create sprints and holidays tables if they don't exist
       CREATE TABLE IF NOT EXISTS sprints (
         id SERIAL PRIMARY KEY,
@@ -90,6 +105,31 @@ export const initPostgres = async () => {
         IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='sprints' AND column_name='team_id') THEN
           ALTER TABLE sprints ADD COLUMN team_id INTEGER NOT NULL DEFAULT 1;
           ALTER TABLE sprints ADD CONSTRAINT fk_sprints_team FOREIGN KEY (team_id) REFERENCES teams(id) ON DELETE CASCADE;
+        END IF;
+      END $$;
+
+      -- Add template_id to sprints if not exists
+      DO $$
+      BEGIN
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='sprints' AND column_name='template_id') THEN
+          ALTER TABLE sprints ADD COLUMN template_id INTEGER;
+          ALTER TABLE sprints ADD CONSTRAINT fk_sprints_template FOREIGN KEY (template_id) REFERENCES sprint_templates(id) ON DELETE SET NULL;
+        END IF;
+      END $$;
+
+      -- Add year to sprints if not exists
+      DO $$
+      BEGIN
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='sprints' AND column_name='year') THEN
+          ALTER TABLE sprints ADD COLUMN year INTEGER;
+        END IF;
+      END $$;
+
+      -- Add quarter to sprints if not exists
+      DO $$
+      BEGIN
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='sprints' AND column_name='quarter') THEN
+          ALTER TABLE sprints ADD COLUMN quarter INTEGER;
         END IF;
       END $$;
 

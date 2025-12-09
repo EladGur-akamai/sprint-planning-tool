@@ -1,4 +1,4 @@
-import { Team, TeamMember, Sprint, Holiday, SprintCapacity, RetroItem } from '../types';
+import { Team, TeamMember, Sprint, SprintTemplate, Holiday, SprintCapacity, RetroItem } from '../types';
 
 const API_BASE = '/api';
 
@@ -228,5 +228,86 @@ export const retroApi = {
       method: 'DELETE',
     });
     if (!res.ok) throw new Error('Failed to delete retro item');
+  },
+};
+
+// Sprint Templates
+export const sprintTemplateApi = {
+  getAll: async (): Promise<SprintTemplate[]> => {
+    const res = await fetch(`${API_BASE}/sprint-templates`);
+    if (!res.ok) throw new Error('Failed to fetch sprint templates');
+    return res.json();
+  },
+
+  getById: async (id: number): Promise<SprintTemplate> => {
+    const res = await fetch(`${API_BASE}/sprint-templates/${id}`);
+    if (!res.ok) throw new Error('Failed to fetch sprint template');
+    return res.json();
+  },
+
+  getByQuarter: async (year: number, quarter: number): Promise<SprintTemplate[]> => {
+    const res = await fetch(`${API_BASE}/sprint-templates/quarter/${year}/${quarter}`);
+    if (!res.ok) throw new Error('Failed to fetch templates by quarter');
+    return res.json();
+  },
+
+  getAvailableQuarters: async (): Promise<Array<{ year: number; quarter: number }>> => {
+    const res = await fetch(`${API_BASE}/sprint-templates/quarters`);
+    if (!res.ok) throw new Error('Failed to fetch available quarters');
+    return res.json();
+  },
+
+  generateQuarter: async (
+    year: number,
+    quarter: number,
+    durationWeeks: number,
+    firstSprintStart: string
+  ): Promise<SprintTemplate[]> => {
+    const res = await fetch(`${API_BASE}/sprint-templates/generate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        year,
+        quarter,
+        duration_weeks: durationWeeks,
+        first_sprint_start: firstSprintStart,
+      }),
+    });
+    if (!res.ok) throw new Error('Failed to generate quarter templates');
+    return res.json();
+  },
+
+  adopt: async (
+    templateId: number,
+    teamId: number,
+    customDates?: { start_date?: string; end_date?: string }
+  ): Promise<Sprint> => {
+    const res = await fetch(`${API_BASE}/sprint-templates/${templateId}/adopt`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        team_id: teamId,
+        ...customDates,
+      }),
+    });
+    if (!res.ok) throw new Error('Failed to adopt template');
+    return res.json();
+  },
+
+  update: async (id: number, template: Partial<SprintTemplate>): Promise<SprintTemplate> => {
+    const res = await fetch(`${API_BASE}/sprint-templates/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(template),
+    });
+    if (!res.ok) throw new Error('Failed to update template');
+    return res.json();
+  },
+
+  delete: async (id: number): Promise<void> => {
+    const res = await fetch(`${API_BASE}/sprint-templates/${id}`, {
+      method: 'DELETE',
+    });
+    if (!res.ok) throw new Error('Failed to delete template');
   },
 };

@@ -43,16 +43,34 @@ export const initSQLite = () => {
       UNIQUE(team_id, member_id)
     );
 
+    CREATE TABLE IF NOT EXISTS sprint_templates (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      year INTEGER NOT NULL,
+      quarter INTEGER NOT NULL,
+      sprint_number INTEGER NOT NULL,
+      start_date TEXT NOT NULL,
+      end_date TEXT NOT NULL,
+      duration_weeks INTEGER NOT NULL,
+      load_factor REAL DEFAULT 0.8,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      UNIQUE(year, quarter, sprint_number)
+    );
+
     CREATE TABLE IF NOT EXISTS sprints (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       team_id INTEGER NOT NULL DEFAULT 1,
+      template_id INTEGER,
       name TEXT NOT NULL,
+      year INTEGER,
+      quarter INTEGER,
       start_date TEXT NOT NULL,
       end_date TEXT NOT NULL,
       is_current BOOLEAN DEFAULT 0,
       load_factor REAL DEFAULT 0.8,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY (team_id) REFERENCES teams(id) ON DELETE CASCADE
+      FOREIGN KEY (team_id) REFERENCES teams(id) ON DELETE CASCADE,
+      FOREIGN KEY (template_id) REFERENCES sprint_templates(id) ON DELETE SET NULL
     );
 
     CREATE TABLE IF NOT EXISTS holidays (

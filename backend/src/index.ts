@@ -3,6 +3,7 @@ import cors from 'cors';
 import teamRoutes from './routes/teamRoutes';
 import teamMemberRoutes from './routes/teamMemberRoutes';
 import sprintRoutes from './routes/sprintRoutes';
+import sprintTemplateRoutes from './routes/sprintTemplateRoutes';
 import holidayRoutes from './routes/holidayRoutes';
 import retroRoutes from './routes/retroRoutes';
 import { initDatabase } from './database/db';
@@ -20,6 +21,7 @@ app.use(express.urlencoded({ limit: '10mb', extended: true }));
 app.use('/api/teams', teamRoutes);
 app.use('/api/members', teamMemberRoutes);
 app.use('/api/sprints', sprintRoutes);
+app.use('/api/sprint-templates', sprintTemplateRoutes);
 app.use('/api/holidays', holidayRoutes);
 app.use('/api/retro', retroRoutes);
 
