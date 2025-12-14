@@ -37,12 +37,11 @@ export class SprintModel {
   static async create(sprint: Omit<Sprint, 'id' | 'created_at'>): Promise<Sprint> {
     // If this sprint is marked as current, unmark all others in the same team
     if (sprint.is_current) {
-      await queryRun('UPDATE sprints SET is_current = 0 WHERE team_id = ?', [sprint.team_id]);
+      await queryRun('UPDATE sprints SET is_current = FALSE WHERE team_id = ?', [sprint.team_id]);
     }
 
     const load_factor = sprint.load_factor !== undefined ? sprint.load_factor : 0.8;
-    // Convert boolean to integer for SQLite
-    const is_current = sprint.is_current ? 1 : 0;
+    const is_current = sprint.is_current ? true : false;
 
     // Automatically calculate year and quarter from start_date if not provided
     const startDate = parseISO(sprint.start_date);
@@ -63,7 +62,7 @@ export class SprintModel {
       // Get the team_id of the sprint being updated
       const existingSprint = await this.getById(id);
       if (existingSprint) {
-        await queryRun('UPDATE sprints SET is_current = 0 WHERE team_id = ?', [existingSprint.team_id]);
+        await queryRun('UPDATE sprints SET is_current = FALSE WHERE team_id = ?', [existingSprint.team_id]);
       }
     }
 
@@ -84,7 +83,7 @@ export class SprintModel {
     }
     if (sprint.is_current !== undefined) {
       fields.push('is_current = ?');
-      values.push(sprint.is_current ? 1 : 0); // Convert boolean to integer
+      values.push(sprint.is_current);
     }
     if (sprint.load_factor !== undefined) {
       fields.push('load_factor = ?');

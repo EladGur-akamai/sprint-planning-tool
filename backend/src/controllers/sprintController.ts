@@ -83,7 +83,8 @@ export const updateSprint = async (req: Request, res: Response) => {
     const updated = await SprintModel.getById(id);
     res.json(updated);
   } catch (error) {
-    res.status(500).json({ error: 'Failed to update sprint' });
+    console.error('Failed to update sprint:', error);
+    res.status(500).json({ error: 'Failed to update sprint', details: (error as Error).message });
   }
 };
 
