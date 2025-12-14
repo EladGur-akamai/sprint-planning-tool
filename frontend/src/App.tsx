@@ -82,6 +82,12 @@ function AppContent() {
 
   useEffect(() => {
     if (currentTeam) {
+      // Clear old data immediately when team changes to prevent showing stale data
+      setTeamMembers([]);
+      setAllSprints([]);
+      setSelectedSprint(null);
+      setHolidays([]);
+      setCapacity(null);
       loadData();
     }
   }, [currentTeam]);

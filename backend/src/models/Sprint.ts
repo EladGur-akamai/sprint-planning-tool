@@ -58,9 +58,13 @@ export class SprintModel {
   }
 
   static async update(id: number, sprint: Partial<Omit<Sprint, 'id' | 'created_at'>>): Promise<boolean> {
-    // If setting as current, unmark all others first
+    // If setting as current, unmark all others in the same team first
     if (sprint.is_current) {
-      await queryRun('UPDATE sprints SET is_current = 0');
+      // Get the team_id of the sprint being updated
+      const existingSprint = await this.getById(id);
+      if (existingSprint) {
+        await queryRun('UPDATE sprints SET is_current = 0 WHERE team_id = ?', [existingSprint.team_id]);
+      }
     }
 
     const fields: string[] = [];
